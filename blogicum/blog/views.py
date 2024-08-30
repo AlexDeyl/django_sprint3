@@ -44,7 +44,8 @@ def category_posts(request: HttpRequest, category_slug) -> HttpResponse:
     # Фильтруем посты, чтобы отображать только опубликованные
     post_list = list(
         filter(
-            lambda post: post.is_published and not post.pub_date > timezone.now(), posts
+            lambda post:
+                post.is_published and not post.pub_date > timezone.now(), posts
         )
     )
     context = {"category": category, "post_list": post_list}
