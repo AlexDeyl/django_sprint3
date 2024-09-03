@@ -1,12 +1,18 @@
 from django.db import models
+
 from django.contrib.auth.models import User
 
+from django.conf import settings
 
-# Определяем модель Post
+from django.utils import timezone
+
+
 class Post(models.Model):
-    title = models.CharField(max_length=256, blank=False,
+    title = models.CharField(max_length=settings.CONSTANTS['MAX_LENGTH'],
+                             blank=False,
                              verbose_name='Заголовок')
-    text = models.TextField(blank=False, verbose_name='Текст')
+    text = models.TextField(blank=False,
+                            verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
         help_text='Если установить дату и время в будущем — '
@@ -30,17 +36,25 @@ class Post(models.Model):
                                       verbose_name='Добавлено')
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+
+    @classmethod
+    def get_recent_posts(cls):
+        return cls.objects.filter(
+            pub_date__lte=timezone.now(),
+            is_published=True,
+            category__is_published=True
+        )
 
     def __str__(self):
         return self.title
 
 
-# Определяем модель Category
 class Category(models.Model):
-    title = models.CharField(max_length=256, blank=False,
+    title = models.CharField(max_length=settings.CONSTANTS['MAX_LENGTH'],
+                             blank=False,
                              verbose_name='Заголовок')
     description = models.TextField(blank=False,
                                    verbose_name='Описание')
@@ -64,9 +78,9 @@ class Category(models.Model):
         return self.title
 
 
-# Определяем модель Location
 class Location(models.Model):
-    name = models.CharField(max_length=256, blank=False,
+    name = models.CharField(max_length=settings.CONSTANTS['MAX_LENGTH'],
+                            blank=False,
                             verbose_name='Название места')
     is_published = models.BooleanField(
         default=True,
